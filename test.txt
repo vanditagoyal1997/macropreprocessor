@@ -1,0 +1,17 @@
+$startmacro write $arg1,$arg2
+	mov   eax, 4
+	mov   ebx, 1
+	mov   ecx, $arg1+$arg2
+	mov   edx, $arg2
+	int   80
+$endmacro	
+section	.text
+   global _start           
+_start:                     
+   write msg1,len1               
+   write msg2,len2    
+   write msg3,len3  
+	
+   mov eax,1               
+   int 0x80                 
+
