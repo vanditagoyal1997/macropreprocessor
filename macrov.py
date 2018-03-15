@@ -5,73 +5,92 @@ macropar={}
 macroarg={}
 macrodef={}
 s=f1.readlines()
-#print (s)
+
+#function for populating macro and macropar dictionary with the program and parameters associated with the macro
+def definemacro(s,l,i): 
+	lprog=[]
+	lpar=[]
+	ldef=[]
+	while (s[i]!="$endmacro"):
+		l1=s[i].split(" ")
+		if l1[0]=="$startmacro": #for nested macros
+			definemacro(s,l1,i+1)
+			i=i+1
+		elif "#" in s[i]: #for removal of a comment
+			x=s[i].index("#")
+			s[i]=s[i][0:x-1]
+			lprog.append(s[i])
+			i=i+1
+		else:
+			lprog.append(s[i])
+			i+=1
+	macro[l[1]]=lprog
+	if len(l)>2: #for more than one parameter
+		if "," in l[2]:
+			l[2]=l[2].split(",")
+			for j in range(len(l[2])):
+				l[2][j]=l[2][j].strip("$")
+				if "=" in l[2][j]:
+					l[2][j]=l[2][j].split("=")
+					lpar.append(l[2][j][0])
+					ldef.append(l[2][j][1])
+				else:
+					lpar.append(l[2][j])
+		else: #for only one parameter
+			l[2]=l[2].strip("$")
+			lpar.append(l[2])
+	macropar[l[1]]=lpar
+	macrodef[l[1]]=ldef
+	macroarg[l[1]]=[]
+	
 for i in range(len(s)):
 	s[i]=s[i].strip()
 for i in range(len(s)):
 	l=s[i].split(" ")
-	#print (l)
 	if l[0]=="$startmacro":
 		i=i+1
-		lprog=[]
-		lpar=[]
-		ldef=[]
-		while (s[i]!="$endmacro"):
-			lprog.append(s[i])
-			i+=1
-		macro[l[1]]=lprog #creating a dictionary for storing macro name with the actual definition
-		if len(l)>2: #if there are parameters
-			if "," in l[2]: #if there are more than one parameters
-				l[2]=l[2].split(",")
-				for j in range(len(l[2])):
-					l[2][j]=l[2][j].strip("$")
-					if "=" in l[2][j]: #if there is any default value for parameters
-						l[2][j]=l[2][j].split("=")
-						lpar.append(l[2][j][0])
-						ldef.append(l[2][j][1])
-					else:
-						lpar.append(l[2][j])
-			else: #if there is only one parameter
-				l[2]=l[2].strip("$")
-				lpar.append(l[2])
-		macropar[l[1]]=lpar
-		macrodef[l[1]]=ldef
-		macroarg[l[1]]=[]
-			
-#print (macro)
-#print (macropar)
-
-for w in range(len(s)):
+		definemacro(s,l,i)
+					
+#for finding the last macro
+for i in range(len(s)):
+	if s[i]=="$endmacro":
+		k=i
+print(macro)
+print(macropar)
+for w in range(k+1,len(s)):
 	l=s[w].split(" ")
-	if l[0] in macro.keys(): #detecting macro calls
-		if len(l)>1:#if arguments are given
+	larg=[]
+	#for storing arguments in macroarg dictionary
+	if l[0] in macro.keys():
+		if len(l)>1:
 			a=l[1]
-			if "," in a:#if more than one arguments are given
+			if "," in a:
 				a=a.split(",")
-			'''if len(a)>len(macropar[l[0]]):
-				print("error1")
-				break'''
-			larg=[]
-			if len(a)==len(macropar[l[0]]):
 				for j in range(len(a)):
-					if "=" in a[j]: #for keyword arguments
+					if "=" in a[j]: #keyword arguments
 						v=a[j].split("=")
 						v[0]=v[0].strip("$")
 						larg.append(v[1])
 					else:
 						larg.append(a[j])
-			
+			else: #one argument
+				if "=" in a: #keyword arguments
+					v=a.split("=")
+					v[0]=v[0].strip("$")
+					larg.append(v[1])
+				else:
+					larg.append(a)
 				
-			#print (str(w) +":")
-			#print (larg)
+			
 			macroarg[l[0]]=larg
-			#print (macroarg[l[0]])
-			for i in range (len(macro[l[0]])): #subsituting arguments
+			print (macroarg)
+			#parameter substitution
+			for i in range (len(macro[l[0]])):
 				d=macro[l[0]][i]
 				if "$" in d:
 					d=d.split("$")	
-					res=d[0]
-					if len(d)>2:#for more than one parameter subsitution in a line
+					res=''
+					if len(d)>2: #for more than one parameter substitution in a line
 						for j in range(len(d)):
 								g=0
 								word=''
@@ -81,7 +100,7 @@ for w in range(len(s)):
 									g=g+1
 								for k in range(len(macropar[l[0]])):
 									if macropar[l[0]][k]==word:
-										if macroarg[l[0]][k]=='':
+										if macroarg[l[0]][k]=='': #default arguments to be used 
 											if macrodef[l[0]][k]:
 												word=macrodef[l[0]][k]
 											else:
@@ -90,29 +109,33 @@ for w in range(len(s)):
 										else:
 											word=macroarg[l[0]][k]
 										res1=res1+word+d[j][g:len(d[j])]
+										print(res1)
 										d[j]=res1
-									#print(d[j])
 								res=res+d[j]
+								
 						
 							
-					else: #for only one parameter subsitution in one line
+					else: #one parameter substitution in a line
+						res=d[0]
 						for k in range(len(macropar[l[0]])):
 							if macropar[l[0]][k]==d[1]:
 								if macroarg[l[0]][k]:
 									res=res+macroarg[l[0]][k]
+									
 								else:
 									res=res+macrodef[l[0]][k]
-								#print(macroarg[l[0]][k])
+								
 				
-				else:
+				else: #for no parameter substitution
 					res=d
 				f2.write(res+"\n")
-		else: #for no parameter subsitution in an expansion
+		else: #if no arguments required
 			for i in range(len(macro[l[0]])):
 				f2.write(macro[l[0]][i]+"\n")
 			
-	else:
+	else: #writing rest of the code
 		f2.write(s[w]+"\n")
 				
-		
+f1.close()
+f2.close()	
 		
