@@ -1,17 +1,26 @@
-$startmacro write $arg1,$arg2
-	mov   eax, 4
-	mov   ebx, 1
-	mov   ecx, $arg1+$arg2
-	mov   edx, $arg2
-	int   80
-$endmacro	
-section	.text
-   global _start           
+$startmacro read $arg1,$arg2 mov eax, $arg1+$arg2 $endmacro
+$startmacro write $arg4
+      mov   eax, 4
+      mov   ebx, 1
+      mov   ecx, eax
+      mov   edx, $arg4
+      int   80h
+$endmacro
+$startmacro largest $arg1=5,$arg2,$arg3
+	mov ecx, $arg1
+	cmp ecx, $arg2
+	jg thirdnum
+	read 2,3 
+	mov eax, $arg1
+$endmacro
+  
+section .text
+global _start           
 _start:                     
-   write msg1,len1               
-   write msg2,len2    
-   write msg3,len3  
-	
-   mov eax,1               
-   int 0x80                 
+   largest 5,4,5
+   write msg
+   
+mov eax,1
+int 80h
+          
 
