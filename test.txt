@@ -8,17 +8,34 @@ $startmacro write $arg4
 $endmacro
 $startmacro largest $arg1=5,$arg2,$arg3
 	mov ecx, $arg1
-	cmp ecx, $arg2
+	cmp $arg2
 	jg thirdnum
-	read 2,3 
+	&if $arg1>0
 	mov eax, $arg1
+	&if $arg3>0
+	mov ebx, $arg3
+	&endif
+	&else
+	mov ecx, $arg3
+	&endelse
+	&endif
+	&else
+	mov eax, $arg2
+	&endelse
 $endmacro
-  
+$startmacro trywhile $arg5
+	mov eax, $arg5
+	&while $arg5<2
+	mov ebx, $arg5
+	add ebx,1
+	&endwhile
+$endmacro
 section .text
 global _start           
 _start:                     
    largest 5,4,5
    write msg
+   trywhile 0
    
 mov eax,1
 int 80h

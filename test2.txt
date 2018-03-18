@@ -1,17 +1,21 @@
-
 section .text
 global _start
 _start:
 mov ecx, 5
-cmp ecx, 4
+cmp 4
 jg thirdnum
-mov eax, 2+3
 mov eax, 5
+mov ebx, 5
 mov   eax, 4
 mov   ebx, 1
 mov   ecx, eax
 mov   edx, msg
 int   80h
+mov eax, 0
+mov ebx, 0
+add ebx,1
+mov ebx, 0
+add ebx,1
 
 mov eax,1
 int 80h
