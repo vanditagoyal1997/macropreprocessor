@@ -154,7 +154,7 @@ def checkwhile(t,strin,i):
 					else: #for no parameter substitution
 						resif=q
 					finalif=resif
-					print(finalif)
+					#print(finalif)
 					if "&if" in finalif: #for if and else statement
 						r=checkif(t,finalif,r)
 					else:
@@ -221,7 +221,7 @@ def checkwhile(t,strin,i):
 					else: #for no parameter substitution
 						resif=q
 					finalif=resif
-					print(finalif)
+					#print(finalif)
 					if "&if" in finalif:#for if and else statement
 						r=checkif(t,finalif,r)
 					else:
@@ -288,7 +288,7 @@ def checkwhile(t,strin,i):
 					else: #for no parameter substitution
 						resif=q
 					finalif=resif
-					print(finalif)
+					#print(finalif)
 					if "&if" in finalif:#for if and else statement
 						r=checkif(t,finalif,r)
 					else:
@@ -363,7 +363,7 @@ def checkif(t,strin,i):
 			else: #for no parameter substitution
 				resif=q
 			finalif=resif
-			print(finalif)
+			#print(finalif)
 			if "&if" in finalif:
 				i=checkif(t,finalif,i)
 			else:
@@ -464,7 +464,10 @@ def definemacro(s,l,i):
 			l1=s[i].split(" ")
 			if l1[0]=="$startmacro": #for nested macros
 				if "$endmacro" in l1: #if a single line macro is defined within another macro
-					k=3
+					if (l1[2][0]=="$"):
+						k=3
+					else:
+						k=2
 					singleline1=''
 					while (l1[k]!="$endmacro"):
 						if "#" in l1[k]: #for removal of a comment
@@ -508,7 +511,6 @@ def definemacro(s,l,i):
 	macropar[l[1]]=lpar
 	macrodef[l[1]]=ldef
 	macroarg[l[1]]=[]
-	
 
 #function for populating macroarg (argument dictionary) and expanding the macro whenever a macro call is encountered
 def expandmacro(l):
@@ -543,6 +545,7 @@ def expandmacro(l):
 			if l2[0] in macro.keys(): #for calling a macro inside a macro
 				expandmacro(l2)
 				i=i+1
+				continue
 			elif "$" in d:
 				d=d.strip(" ")
 				d=d.split("$")
@@ -576,6 +579,7 @@ def expandmacro(l):
 					g=0
 					word=''
 					res1=''
+					k=0
 					while g<len(d[1]) and d[1][g].isalnum():
 						word=word+d[1][g]
 						g=g+1
@@ -607,11 +611,10 @@ def expandmacro(l):
 				f2.write(final+"\n")
 				i=i+1
 				
-	'''else: #if no arguments required
+	else: #if no arguments required
 		for m in range(len(macro[l[0]])):
 			f2.write(macro[l[0]][m]+"\n")
-		
-		i=i+1'''	
+			
 	
 for i in range(len(s)):
 	s[i]=s[i].strip()
